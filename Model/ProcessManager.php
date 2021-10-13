@@ -71,7 +71,6 @@ class ProcessManager
     private function simpleThreadExecute($userFunctions)
     {
         foreach ($userFunctions as $userFunction) {
-            // phpcs:ignore Magento2.Functions.DiscouragedFunction
             call_user_func($userFunction);
         }
     }
@@ -80,7 +79,6 @@ class ProcessManager
      * Execute user functions in multiThreads mode
      *
      * @param \Traversable $userFunctions
-     * @throws \RuntimeException
      * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     private function multiThreadsExecute($userFunctions)
@@ -88,7 +86,6 @@ class ProcessManager
         $this->resource->closeConnection(null);
         $threadNumber = 0;
         foreach ($userFunctions as $userFunction) {
-            // phpcs:ignore Magento2.Functions.DiscouragedFunction
             $pid = pcntl_fork();
             if ($pid == -1) {
                 throw new \RuntimeException('Unable to fork a new process');
@@ -98,7 +95,6 @@ class ProcessManager
                 $this->startChildProcess($userFunction);
             }
         }
-        // phpcs:ignore Magento2.CodeAnalysis.EmptyBlock,Magento2.Functions.DiscouragedFunction
         while (pcntl_waitpid(0, $status) != -1) {
             //Waiting for the completion of child processes
         }
@@ -132,13 +128,12 @@ class ProcessManager
      * Start child process
      *
      * @param callable $userFunction
+     * @SuppressWarnings(PHPMD.ExitExpression)
      */
     private function startChildProcess(callable $userFunction)
     {
-        // phpcs:ignore Magento2.Functions.DiscouragedFunction
         $status = call_user_func($userFunction);
-        $status = is_int($status) ? $status : 0;
-        // phpcs:ignore Magento2.Security.LanguageConstruct.ExitUsage
+        $status = is_integer($status) ? $status : 0;
         exit($status);
     }
 
@@ -151,10 +146,8 @@ class ProcessManager
     {
         $threadNumber++;
         if ($threadNumber >= $this->threadsCount) {
-            // phpcs:disable Magento2.Functions.DiscouragedFunction
             pcntl_wait($status);
             if (pcntl_wexitstatus($status) !== 0) {
-                // phpcs:enable
                 $this->failInChildProcess = true;
             }
             $threadNumber--;
